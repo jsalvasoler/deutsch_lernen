@@ -91,7 +91,8 @@ def start_review():
     # Filter by bucket
     df = df[df['bucket'].isin(st.session_state.buckets_to_review)]
     # Filter by type
-    df = df[df['type_of_word'].isin(st.session_state.types_to_review)]
+    if st.session_state.types_to_review:
+        df = df[df['type_of_word'].isin(st.session_state.types_to_review)]
 
     # Check that the last review date is not too recent
     df = df[
@@ -124,9 +125,10 @@ def app():
 
     current = st.session_state.current_batch[st.session_state.word_iter]
     left, center, right = st.columns([1, 2, 1])
-    left.write(f'Word {st.session_state.word_iter + 1}/{st.session_state.n_words_review}\n'
-               f'✅ {sum(st.session_state.user_results.values())} | '
+    left.write(f'Word {st.session_state.word_iter + 1}/{st.session_state.n_words_review}')
+    left.write(f'\n✅ {sum(st.session_state.user_results.values())} | '
                f'❌ {len(st.session_state.user_results) - sum(st.session_state.user_results.values())}')
+
     center.subheader(current.english)
     help_needed = right.button('Get help', key='help_needed', on_click=display_word_info, kwargs={'current': current,
                                                  'place': right})
@@ -137,15 +139,12 @@ def app():
 
 
 def sidebar():
-    st.sidebar.title('Review')
-    st.sidebar.write('This is the review page. Start by selecting the number of words that you want to review.')
-    st.sidebar.divider()
     st.sidebar.number_input('Number of words to review', key='n_words_review',
                             min_value=5, max_value=50, value=10, step=1)
     st.sidebar.multiselect('Select buckets to review', key='buckets_to_review', options=range(1, N_BUCKETS + 1),
                            default=range(1, N_BUCKETS + 1))
     st.sidebar.multiselect('Select types to review', key='types_to_review', options=WORD_TYPES,
-                           default=WORD_TYPES)
+                           default=[])
     st.sidebar.slider('Select levels to review', key='levels_to_review',
                       min_value=1, max_value=170, value=(40, 170), step=15)
     st.sidebar.checkbox('Include new words', key='include_new', value=True,
