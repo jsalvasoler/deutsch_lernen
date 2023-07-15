@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_app.utils import *
+from utils import *
 from unidecode import unidecode
 import pandas as pd
 

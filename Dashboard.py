@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from streamlit_app.utils import *
+from utils import *
 
 
 def intro():
