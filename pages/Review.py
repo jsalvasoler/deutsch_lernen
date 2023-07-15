@@ -2,6 +2,8 @@ import streamlit as st
 from utils import *
 from unidecode import unidecode
 import pandas as pd
+from google.oauth2 import service_account
+from gsheetsdb import connect
 
 
 def soften_string(s):
@@ -151,5 +153,29 @@ def sidebar():
     st.sidebar.button('Start review', on_click=start_review)
 
 
+def db_test():
+    # Create a connection object.
+    credentials = service_account.Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"],
+        scopes=[
+            "https://www.googleapis.com/auth/spreadsheets",
+        ],
+    )
+    conn = connect(credentials=credentials)
+
+    def run_query(query):
+        rows = conn.execute(query, headers=1)
+        rows = rows.fetchall()
+        return rows
+
+    sheet_url = st.secrets["private_gsheets_url"]
+    rows = run_query(f'SELECT * FROM "{sheet_url}"')
+
+    # Print results.
+    for row in rows:
+        st.write(f"{row.german} has a :{row.english}:")
+
+
 if __name__ == '__main__':
-    app()
+    # app()
+    db_test()
