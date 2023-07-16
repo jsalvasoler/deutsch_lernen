@@ -2,8 +2,7 @@ import streamlit as st
 from utils import *
 from unidecode import unidecode
 import pandas as pd
-from google.oauth2 import service_account
-from gsheetsdb import connect
+import numpy as np
 
 
 def soften_string(s):
@@ -21,7 +20,7 @@ def display_results():
     for card in reversed(st.session_state.current_batch):
         if st.session_state.user_results[card.german] == 0:
             center.divider()
-            display_word_info(card, center)
+            display_card(card, center)
 
     left, right = st.columns(2)
     left.button('Continue reviewing', on_click=start_review)
@@ -39,19 +38,26 @@ def save_results():
     df.to_csv(GERMAN_WORDS_PATH, index=False)
 
 
-def display_word_info(current, place):
+def display_card(current, place):
     left, right = place.columns(2)
     left.markdown(f'**German**: {current.german}')
+    left.markdown(f'**Alternatives (G)**: {current.german_alternatives}')
     left.markdown(f'**Type**: {current.type_of_word}')
     left.markdown(f'**Sentence**: {current.sentence}')
     right.markdown(f'**English**: {current.english}')
+    right.markdown(f'**Alternatives (E)**: {current.english_alternatives}')
     right.markdown(f'**Bucket**: {current.bucket}')
     right.markdown(f'**Level**: {current.level}')
     right.markdown(f'**Plural**: {current.plural}')
 
 
 def validate_user_translation(current, place, help_needed):
-    place.divider()
+    print('----')
+    print(f'help_needed: {help_needed}')
+    print(st.session_state.user_translation)
+    print(current.german)
+    if st.session_state.user_translation == '':
+        return
     if help_needed:
         place.warning('You needed help... It counts as incorrect.')
         st.session_state.user_results[current.german] = 0
@@ -63,7 +69,7 @@ def validate_user_translation(current, place, help_needed):
         place.error('Incorrect!')
         st.session_state.user_results[current.german] = 0
 
-    display_word_info(current, place)
+    display_card(current, place)
     st.session_state.word_iter += 1
     st.session_state.user_translation = ''
     if st.session_state.word_iter == st.session_state.n_words_review:
@@ -130,12 +136,17 @@ def app():
                f'❌ {len(st.session_state.user_results) - sum(st.session_state.user_results.values())}')
 
     center.subheader(current.english)
-    help_needed = right.button('Get help', key='help_needed', on_click=display_word_info, kwargs={'current': current,
-                                                 'place': right})
+    right.button('Get help', key='help_needed', on_click=get_help, kwargs={'current': current, 'place': right})
     left.write(f'**Type**: {current.type_of_word}')
     left.write(f'**Level**: {current.level}')
     center.text_input('Your translation', key='user_translation', on_change=validate_user_translation,
-                      kwargs={'current': current, 'place': center, 'help_needed': help_needed})
+                      kwargs={'current': current, 'place': center, 'help_needed': st.session_state.help_needed},
+                      label_visibility='collapsed')
+
+
+def get_help(current, place):
+    st.session_state.user_translation = ""
+    display_card(current, place)
 
 
 def sidebar():
@@ -152,29 +163,5 @@ def sidebar():
     st.sidebar.button('Start review', on_click=start_review)
 
 
-def db_test():
-    # Create a connection object.
-    credentials = service_account.Credentials.from_service_account_info(
-        st.secrets["gcp_service_account"],
-        scopes=[
-            "https://www.googleapis.com/auth/spreadsheets",
-        ],
-    )
-    conn = connect(credentials=credentials)
-
-    def run_query(query):
-        rows = conn.execute(query, headers=1)
-        rows = rows.fetchall()
-        return rows
-
-    sheet_url = st.secrets["private_gsheets_url"]
-    rows = run_query(f'SELECT * FROM "{sheet_url}"')
-
-    # Print results.
-    for row in rows:
-        st.write(f"{row.german} has a :{row.english}:")
-
-
 if __name__ == '__main__':
-    # app()
-    db_test()
+    app()
