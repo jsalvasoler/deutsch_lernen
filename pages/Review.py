@@ -158,7 +158,7 @@ def sidebar():
                            default=[])
     st.sidebar.slider('Select levels to review', key='levels_to_review',
                       min_value=1, max_value=170, value=(40, 170), step=15)
-    st.sidebar.checkbox('Include new words', key='include_new', value=True,
+    st.sidebar.checkbox('Include new words', key='include_new', value=False,
                         help='Include words that have never been reviewed')
     st.sidebar.button('Start review', on_click=start_review)
 
