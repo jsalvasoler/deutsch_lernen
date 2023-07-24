@@ -52,10 +52,6 @@ def display_card(current, place):
 
 
 def validate_user_translation(current, place, help_needed):
-    print('----')
-    print(f'help_needed: {help_needed}')
-    print(st.session_state.user_translation)
-    print(current.german)
     if st.session_state.user_translation == '':
         return
     if help_needed:
@@ -101,8 +97,12 @@ def start_review():
         df = df[df['type_of_word'].isin(st.session_state.types_to_review)]
 
     # Check that the last review date is not too recent
+    # - If the word has never been reviewed, it is included
+    # - If the word is in bucket 1 and already reviewed, it is included (no need to wait)
+    # - If the word has been reviewed, it is included if the last review was more than MIN_DAYS_BETWEEN_REVIEWS ago
     df = df[
         (pd.isna(df['last_reviewed'])) |
+        (~pd.isna(df['last_reviewed']) & df.bucket == 1) |
         (df['last_reviewed'].apply(lambda x: (pd.Timestamp.now() - pd.Timestamp(x)).days) >= MIN_DAYS_BETWEEN_REVIEWS)]
     # Filter accordingly to include new
     if not st.session_state.include_new:
