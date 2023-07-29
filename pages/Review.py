@@ -49,6 +49,7 @@ def display_card(current, place):
     right.markdown(f'**Bucket**: {current.bucket}')
     right.markdown(f'**Level**: {current.level}')
     right.markdown(f'**Plural**: {current.plural}')
+    left.markdown(f'Last reviewed: {current.last_reviewed}')
 
 
 def validate_user_translation(current, place, help_needed):
@@ -101,17 +102,22 @@ def start_review():
     # - If the word is in bucket 1 and already reviewed, it is included (no need to wait)
     # - If the word has been reviewed, it is included if the last review was more than MIN_DAYS_BETWEEN_REVIEWS ago
     df = df[
-        (pd.isna(df['last_reviewed'])) |
-        (~pd.isna(df['last_reviewed']) & df.bucket == 1) |
+        (df['last_reviewed'].isna()) |
+        (~df['last_reviewed'].isna() & (df.bucket == 1)) |
         (df['last_reviewed'].apply(lambda x: (pd.Timestamp.now() - pd.Timestamp(x)).days) >= MIN_DAYS_BETWEEN_REVIEWS)]
     # Filter accordingly to include new
     if not st.session_state.include_new:
         df = df[~pd.isna(df['last_reviewed'])]
 
     # Sample
-    if df.empty:
+    if df.empty or len(df) < st.session_state.n_words_review:
         st.error('No words to review. Please change your filters.')
         return
+
+    print('min of last review', df['last_reviewed'].apply(lambda x: (pd.Timestamp.now() - pd.Timestamp(x)).days).min())
+    print('number of last review NA', df['last_reviewed'].isna().sum())
+    print('buckets', df['bucket'].unique())
+    print('do not satisfy mindays', (df['last_reviewed'].apply(lambda x: (pd.Timestamp.now() - pd.Timestamp(x)).days) < MIN_DAYS_BETWEEN_REVIEWS).sum())
 
     df['german'] = df['german'].astype(str)
     df = df.sample(st.session_state.n_words_review)
