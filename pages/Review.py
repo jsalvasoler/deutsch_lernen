@@ -6,7 +6,7 @@ import numpy as np
 
 
 def soften_string(s):
-    return unidecode(s.lower())
+    return unidecode(s.lower()).replace('!', "")
 
 
 def display_results():
@@ -15,12 +15,13 @@ def display_results():
     st.write(f'✅ {n_correct_words} | '
              f'❌ {st.session_state.n_words_review - n_correct_words}  '
              f'({round(n_correct_words / st.session_state.n_words_review * 100, 2)}%)')
-    st.write('Words you did not get correct:')
-    _, center, _ = st.columns([1, 2, 1])
-    for card in reversed(st.session_state.current_batch):
-        if st.session_state.user_results[card.german] == 0:
-            center.divider()
-            display_card(card, center)
+    if not n_correct_words == st.session_state.n_words_review:
+        st.write('Words you did not get correct:')
+        _, center, _ = st.columns([1, 2, 1])
+        for card in reversed(st.session_state.current_batch):
+            if st.session_state.user_results[card.german] == 0:
+                center.divider()
+                display_card(card, center)
 
     left, right = st.columns(2)
     left.button('Continue reviewing', on_click=start_review)
@@ -113,11 +114,6 @@ def start_review():
     if df.empty or len(df) < st.session_state.n_words_review:
         st.error('No words to review. Please change your filters.')
         return
-
-    print('min of last review', df['last_reviewed'].apply(lambda x: (pd.Timestamp.now() - pd.Timestamp(x)).days).min())
-    print('number of last review NA', df['last_reviewed'].isna().sum())
-    print('buckets', df['bucket'].unique())
-    print('do not satisfy mindays', (df['last_reviewed'].apply(lambda x: (pd.Timestamp.now() - pd.Timestamp(x)).days) < MIN_DAYS_BETWEEN_REVIEWS).sum())
 
     df['german'] = df['german'].astype(str)
     df = df.sample(st.session_state.n_words_review)
