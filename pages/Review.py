@@ -105,7 +105,8 @@ def start_review():
     df = df[
         (df['last_reviewed'].isna()) |
         (~df['last_reviewed'].isna() & (df.bucket == 1)) |
-        (df['last_reviewed'].apply(lambda x: (pd.Timestamp.now() - pd.Timestamp(x)).days) >= MIN_DAYS_BETWEEN_REVIEWS)]
+        (df.apply(lambda x: (pd.Timestamp.now() - pd.Timestamp(x['last_reviewed'])).days >=
+                            MIN_DAYS_BETWEEN_REVIEWS[x['bucket']], axis=1))]
     # Filter accordingly to include new
     if not st.session_state.include_new:
         df = df[~pd.isna(df['last_reviewed'])]
@@ -159,7 +160,7 @@ def sidebar():
     st.sidebar.multiselect('Select types to review', key='types_to_review', options=WORD_TYPES,
                            default=[])
     st.sidebar.slider('Select levels to review', key='levels_to_review',
-                      min_value=1, max_value=170, value=(40, 170), step=15)
+                      min_value=1, max_value=170, value=(1, 170), step=15)
     st.sidebar.checkbox('Include new words', key='include_new', value=False,
                         help='Include words that have never been reviewed')
     st.sidebar.button('Start review', on_click=start_review)

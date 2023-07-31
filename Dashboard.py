@@ -7,20 +7,26 @@ def intro():
     st.set_page_config(page_title=APP_TITLE, page_icon=APP_ICON, layout="wide", initial_sidebar_state="auto",
                        menu_items=None)
     st.title('Dashboard')
-    st.write('This is the dashboard page')
+    st.write('Take a look at your learning progress!')
 
-    words = pd.read_csv(GERMAN_WORDS_PATH, na_values=pd.NA)
-    words['last_reviewed'] = pd.to_datetime(words['last_reviewed'])
+    df = pd.read_csv(GERMAN_WORDS_PATH, na_values=pd.NA)
 
     st.divider()
-    left, center, right = st.columns(3)
-    left.write(f'**Total number of words to learn:** {words.shape[0]}')
-    words = words[~words.last_reviewed.isna()]
-    center.write(f'**Words reviewed in the last 24 hours:** '
-                 f'{words[((words["last_reviewed"] - pd.Timestamp.now()).dt.days < 1)].shape[0]}')
-    right.write(f'**Words reviewed in the last 7 days:** '
-                f'{words[((words["last_reviewed"] - pd.Timestamp.now()).dt.days < 7)].shape[0]}')
+    cols = st.columns(5)
+    cols[0].metric(label=f'Total words to learn:', value=f'{df.shape[0]}')
+    words = df[~df.last_reviewed.isna()].copy()
+    words['last_reviewed'] = pd.to_datetime(words['last_reviewed'])
+    cols[1].metric(label=f'LR in the last 24 hours:',
+                   value=f'{words[((words["last_reviewed"] - pd.Timestamp.now()).dt.days < 1)].shape[0]}')
+    cols[2].metric(label=f'LR in the last 7 days:',
+                   value=f'{words[((words["last_reviewed"] - pd.Timestamp.now()).dt.days < 7)].shape[0]}')
 
+    # Percentage of words that have been reviewed at least once
+    cols[3].metric(label=f'Reviewed at least once:',
+                   value=f'{df[~df.last_reviewed.isna()].shape[0] / df.shape[0] * 100:.2f} %')
+    # Average bucket of words (not reviewed words are bucket 0)
+    df.loc[df['last_reviewed'].isna(), 'bucket'] = 0
+    cols[4].metric(label='Average bucket', value=f'{df.bucket.mean():.2f}')
     st.divider()
     _, center, _ = st.columns([1, 2, 1])
     # Plot number of words in each bucket
