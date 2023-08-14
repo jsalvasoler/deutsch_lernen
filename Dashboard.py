@@ -25,8 +25,8 @@ def intro():
     cols[3].metric(label=f'Reviewed at least once:',
                    value=f'{df[~df.last_reviewed.isna()].shape[0] / df.shape[0] * 100:.2f} %')
     # Average bucket of words (not reviewed words are bucket 0)
-    df.loc[df['last_reviewed'].isna(), 'bucket'] = 0
-    cols[4].metric(label='Average bucket', value=f'{df.bucket.mean():.2f}')
+    df.loc[df['last_reviewed'].isna(), 'bucket'] = 1
+    cols[4].metric(label='Average bucket', value=f'{df.bucket.mean():.4f}')
     st.divider()
     _, center, _ = st.columns([1, 2, 1])
     # Plot number of words in each bucket

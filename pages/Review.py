@@ -154,7 +154,7 @@ def get_help(current, place):
 
 def sidebar():
     st.sidebar.number_input('Number of words to review', key='n_words_review',
-                            min_value=5, max_value=50, value=10, step=1)
+                            min_value=5, max_value=MAX_WORDS_TO_REVIEW, value=10, step=1)
     st.sidebar.multiselect('Select buckets to review', key='buckets_to_review', options=range(1, N_BUCKETS + 1),
                            default=range(1, N_BUCKETS + 1))
     st.sidebar.multiselect('Select types to review', key='types_to_review', options=WORD_TYPES,
