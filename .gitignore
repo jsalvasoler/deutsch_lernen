@@ -1,2 +1,5 @@
 *.csv
 .streamlit/secrets.toml
+.idea/
+.vscode/
+__pycache__/
