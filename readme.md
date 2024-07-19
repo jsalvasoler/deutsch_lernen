@@ -1,6 +1,8 @@
 ## Dummkopf
 
-Memorize German vocabulary with card-based, [spaced repetition](https://en.wikipedia.org/wiki/Spaced_repetition) techniques. A key concept is a **bucket**. Each word is assigned to a bucket, and by default it is assigned to bucket 0. When a word is reviewed and the user correctly translates it, the word is moved to the next bucket. If the user fails to translate the word, the word is moved back one bucket. 
+Memorize German vocabulary with card-based, [spaced repetition](https://en.wikipedia.org/wiki/Spaced_repetition) techniques. A key concept is a **bucket**. Each word is assigned to a bucket, and by default it is assigned to bucket 0. When a word is reviewed and the user correctly translates it, the word is moved to the next bucket. If the user fails to translate the word, the word is moved back one bucket.
+
+I give some more context about this project in this [blog post](https://jsalvasoler.vercel.app/i-built-an-app-to-learn-german-and-then-i-didnt-use-it).
 
 There are 7 buckets in total, and when a word is moved from bucket 7, it is considered as learned. An important detail is that the time between reviews increases with the bucket number:
 
