@@ -31,7 +31,7 @@ streamlit run Dashboard.py
 
 The main page of the application is the Dashboard page. This is a screenshot of what it looks like:
 
-![Dashboard](images/deutsch_lernen_1.png)
+![Dashboard](resources/deutsch_lernen_1.png)
 
 The Dashboard gives an overview of the learning progress:
 - Total words to learn
@@ -44,7 +44,7 @@ The Dashboard gives an overview of the learning progress:
 
 After taking a look at the Dashboard, the user can start reviewing words by clicking on the "Review" button. This is a screenshot of what it looks like:
 
-![Review](images/deutsch_lernen_2.png)
+![Review](resources/deutsch_lernen_2.png)
 
 On the left panel, the user is asked to select the details of the review. The user can choose:
 - Number of words to review (default: 10, it is expected to review in small batches, so that you can take a look at the incorrect answers)
@@ -59,4 +59,4 @@ After typing the translation and pressing Enter, the application shows "Correct"
 
 At the end of the review, the user can see the results of the review. The user can take a look at the incorrect answers. Here is a screenshot of what it looks like:
 
-![Results](images/deutsch_lernen_3.png)
+![Results](resources/deutsch_lernen_3.png)
